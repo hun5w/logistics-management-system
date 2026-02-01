@@ -1,0 +1,43 @@
+### --- IDE & 系统文件 ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+.DS_Store
+Thumbs.db
+
+### --- Java / Spring Boot (后端) ---
+**/target/
+**/build/
+*.class
+*.jar
+*.war
+*.ear
+# 忽略 Spring Boot 运行生成的日志文件
+*.log
+# 忽略本地开发的临时配置文件 (如 application-local.properties)
+**/src/main/resources/application-local.properties
+
+### --- Vue.js / Node.js (前端预留) ---
+**/node_modules/
+**/dist/
+**/dist-ssr/
+*.local
+.eslintcache
+.stylelintcache
+.stylelintrc.json
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+### --- 数据库 & 临时文件 ---
+# 忽略本地数据库连接的临时日志或备份
+*.sql.gz
+*.sql.bak
+.temp/
+tmp/
