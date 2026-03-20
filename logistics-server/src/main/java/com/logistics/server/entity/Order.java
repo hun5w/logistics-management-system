@@ -18,4 +18,5 @@ public class Order {
     private BigDecimal fee;
     private Integer status;      // 0待揽件 1已揽件 ...
     private LocalDateTime createTime;
+    private BigDecimal distance;
 }
