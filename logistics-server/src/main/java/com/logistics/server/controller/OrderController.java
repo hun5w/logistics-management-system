@@ -1,4 +1,4 @@
-package com.logistics.server.Controller;
+package com.logistics.server.controller;
 
 import com.logistics.server.entity.Order;
 import com.logistics.server.mapper.OrderMapper;
