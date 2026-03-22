@@ -21,7 +21,7 @@ public class OrderController {
         // 1. 生成唯一订单号
         order.setOrderNo("LOG" + System.currentTimeMillis());
 
-        // 2. 模拟阶梯计费算法 (毕设亮点)
+        // 2. 模拟阶梯计费算法
         // 逻辑：起步价 10元 + 重量费(2元/kg) + 远程费(超出100km后，每km加0.5元)
         BigDecimal basePrice = new BigDecimal("10.00");
         BigDecimal weightPrice = order.getWeight().multiply(new BigDecimal("2.0"));
