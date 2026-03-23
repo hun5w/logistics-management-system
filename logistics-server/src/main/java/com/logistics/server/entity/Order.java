@@ -3,6 +3,7 @@ package com.logistics.server.entity;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class Order {
@@ -19,4 +20,5 @@ public class Order {
     private Integer status;      // 0待揽件 1已揽件 ...
     private LocalDateTime createTime;
     private BigDecimal distance;
+    private List<LogisticsTrack> tracks;
 }
