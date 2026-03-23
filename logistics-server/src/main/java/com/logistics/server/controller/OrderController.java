@@ -49,4 +49,10 @@ public class OrderController {
         int result = orderMapper.updateStatus(id, status);
         return result > 0 ? "状态更新成功" : "状态更新失败";
     }
+
+    // 4. 根据订单号查询单个订单 (轨迹查询)
+    @GetMapping("/search")
+    public Order getOrderByNo(@RequestParam String orderNo) {
+        return orderMapper.findByOrderNo(orderNo);
+    }
 }
