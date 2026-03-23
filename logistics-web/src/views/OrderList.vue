@@ -14,13 +14,15 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="操作" width="200">
           <template #default="scope">
-            <el-button
-                v-if="scope.row.status === 0"
-                size="small"
-                type="primary"
-                @click="handlePickup(scope.row)">确认揽件</el-button>
+            <el-button v-if="scope.row.status === 0" size="small" type="primary" @click="changeStatus(scope.row, 1)">确认揽件</el-button>
+
+            <el-button v-if="scope.row.status === 1" size="small" type="warning" @click="changeStatus(scope.row, 2)">开始运输</el-button>
+
+            <el-button v-if="scope.row.status === 2" size="small" type="success" @click="changeStatus(scope.row, 3)">开始派送</el-button>
+
+            <el-button v-if="scope.row.status === 3" size="small" type="info" @click="changeStatus(scope.row, 4)">确认签收</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -50,14 +52,10 @@ const fetchOrders = async () => {
   }
 }
 
-const handlePickup = async (row) => {
-  try {
-    await axios.put(`http://localhost:8080/api/orders/status?id=${row.id}&status=1`)
-    ElMessage.success('揽件成功！')
-    fetchOrders() // 刷新列表
-  } catch (e) {
-    ElMessage.error('操作失败')
-  }
+const changeStatus = async (row, nextStatus) => {
+  await axios.put(`http://localhost:8080/api/orders/status?id=${row.id}&status=${nextStatus}`)
+  ElMessage.success('状态更新成功！')
+  fetchOrders() // 刷新列表
 }
 
 onMounted(fetchOrders)
