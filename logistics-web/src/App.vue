@@ -4,6 +4,7 @@
       <el-menu :default-active="$route.path" router class="el-menu-vertical">
         <el-menu-item index="/create">📦 快速下单</el-menu-item>
         <el-menu-item index="/list">📋 订单管理</el-menu-item>
+        <el-menu-item index="/search">🔍 轨迹查询</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
