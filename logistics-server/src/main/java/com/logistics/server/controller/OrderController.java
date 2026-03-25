@@ -91,4 +91,27 @@ public class OrderController {
         }
         return order;
     }
+
+    // 5. 仓库入库操作
+    @PutMapping("/arrive")
+    @Transactional
+    public String orderArrive(@RequestParam Long id, @RequestParam String location) {
+        // 入库通常不改变订单大状态（依然是运输中），但要更新轨迹
+        LogisticsTrack track = new LogisticsTrack();
+        track.setOrderId(id);
+        track.setContent("快件已到达 【" + location + "】");
+        trackMapper.insertTrack(track);
+        return "入库成功";
+    }
+
+    // 6. 仓库出库（发往下一站）
+    @PutMapping("/depart")
+    @Transactional
+    public String orderDepart(@RequestParam Long id, @RequestParam String nextStop) {
+        LogisticsTrack track = new LogisticsTrack();
+        track.setOrderId(id);
+        track.setContent("快件已从上一站发出，正发往 【" + nextStop + "】");
+        trackMapper.insertTrack(track);
+        return "出库成功";
+    }
 }

@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import OrderCreate from '../views/OrderCreate.vue'
 import OrderList from '../views/OrderList.vue'
 import OrderSearch from '../views/OrderSearch.vue'
+import WarehouseWorktop from "../views/WarehouseWorktop.vue";
+import CourierWorktop from "../views/CourierWorktop.vue";
 
 const routes = [
     {
@@ -23,7 +25,17 @@ const routes = [
                 path: 'search',
                 name: 'OrderSearch',
                 component: OrderSearch
-            }
+            },
+            {
+                path: 'warehouse',
+                name: 'Warehouse',
+                component: WarehouseWorktop
+            },
+            {
+                path: 'courier',
+                name: 'Courier',
+                component: CourierWorktop
+            },
         ]
     }
 ]
