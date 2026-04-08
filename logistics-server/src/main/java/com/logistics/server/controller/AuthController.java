@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // 允许前端跨域
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -19,15 +19,60 @@ public class AuthController {
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody User loginUser) {
         Map<String, Object> response = new HashMap<>();
-        User user = userMapper.login(loginUser.getUsername(), loginUser.getPassword());
+        User user = userMapper.findByUsername(loginUser.getUsername());
 
-        if (user != null) {
+        if (user != null && user.getPassword().equals(loginUser.getPassword())) {
+            if (user.getStatus() == 0) {
+                response.put("code", 403);
+                response.put("msg", "账号已被禁用，请联系管理员");
+                return response;
+            }
             response.put("code", 200);
             response.put("msg", "登录成功");
-            response.put("data", user); // 返回用户信息，包含 role
+            response.put("data", user);
         } else {
             response.put("code", 401);
             response.put("msg", "用户名或密码错误");
+        }
+        return response;
+    }
+
+    @PostMapping("/register")
+    public Map<String, Object> register(@RequestBody User newUser) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 1. 安全校验：禁止通过接口注册 ADMIN 或 WAREHOUSE
+        String regRole = newUser.getRole();
+        if ("ADMIN".equalsIgnoreCase(regRole) || "WAREHOUSE".equalsIgnoreCase(regRole)) {
+            response.put("code", 403);
+            response.put("msg", "内部角色需由管理员分配，禁止自主注册");
+            return response;
+        }
+
+        // 2. 默认值与规范化
+        if (regRole == null || regRole.isEmpty()) newUser.setRole("USER");
+        newUser.setStatus(1);
+        if (newUser.getNickname() == null) newUser.setNickname("用户_" + newUser.getUsername());
+
+        // 3. 查重校验
+        if (userMapper.findByUsername(newUser.getUsername()) != null) {
+            response.put("code", 400);
+            response.put("msg", "账号已存在");
+            return response;
+        }
+        if (newUser.getPhone() != null && userMapper.findByPhone(newUser.getPhone()) != null) {
+            response.put("code", 400);
+            response.put("msg", "该手机号已被绑定");
+            return response;
+        }
+
+        int result = userMapper.insertUser(newUser);
+        if (result > 0) {
+            response.put("code", 200);
+            response.put("msg", "注册成功");
+        } else {
+            response.put("code", 500);
+            response.put("msg", "注册失败，请联系系统支持");
         }
         return response;
     }

@@ -10,5 +10,7 @@ public class User {
     private String password;
     private String role;     // ADMIN, WAREHOUSE, COURIER
     private String nickname;
+    private String phone;     // 新增
+    private Integer status;   // 新增
     private LocalDateTime createTime;
 }
