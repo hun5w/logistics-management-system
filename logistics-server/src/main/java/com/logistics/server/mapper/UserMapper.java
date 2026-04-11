@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -30,4 +33,22 @@ public interface UserMapper {
     @Insert("INSERT INTO t_user(username, password, role, nickname, phone, status, create_time) " +
             "VALUES(#{username}, #{password}, #{role}, #{nickname}, #{phone}, #{status}, NOW())")
     int insertUser(User user);
+
+    @Select("SELECT * FROM t_user ORDER BY create_time DESC")
+    List<User> findAllUsers();
+
+    @Select("SELECT * FROM t_user WHERE id = #{id}")
+    User findById(@Param("id") Long id);
+
+    @Select("SELECT * FROM t_user WHERE status = #{status} ORDER BY create_time DESC")
+    List<User> findByStatus(@Param("status") Integer status);
+
+    @Update("UPDATE t_user SET role = #{role} WHERE id = #{id}")
+    int updateUserRole(@Param("id") Long id, @Param("role") String role);
+
+    @Update("UPDATE t_user SET status = #{status} WHERE id = #{id}")
+    int updateUserStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    @Update("UPDATE t_user SET password = #{password} WHERE id = #{id}")
+    int updateUserPassword(@Param("id") Long id, @Param("password") String password);
 }

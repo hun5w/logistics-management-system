@@ -2,6 +2,7 @@ package com.logistics.server.controller;
 
 import com.logistics.server.entity.User;
 import com.logistics.server.mapper.UserMapper;
+import com.logistics.server.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,23 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         User user = userMapper.findByUsername(loginUser.getUsername());
 
-        if (user != null && user.getPassword().equals(loginUser.getPassword())) {
+        boolean passwordValid = false;
+        if (user != null) {
+            String storedPassword = user.getPassword();
+            String rawPassword = loginUser.getPassword();
+            passwordValid = PasswordUtil.matches(rawPassword, storedPassword) || rawPassword.equals(storedPassword);
+            if (passwordValid && !PasswordUtil.isBcryptHash(storedPassword)) {
+                userMapper.updateUserPassword(user.getId(), PasswordUtil.encode(rawPassword));
+            }
+        }
+
+        if (user != null && passwordValid) {
             if (user.getStatus() == 0) {
                 response.put("code", 403);
                 response.put("msg", "账号已被禁用，请联系管理员");
                 return response;
             }
+            user.setPassword(null);
             response.put("code", 200);
             response.put("msg", "登录成功");
             response.put("data", user);
@@ -65,6 +77,8 @@ public class AuthController {
             response.put("msg", "该手机号已被绑定");
             return response;
         }
+
+        newUser.setPassword(PasswordUtil.encode(newUser.getPassword()));
 
         int result = userMapper.insertUser(newUser);
         if (result > 0) {
