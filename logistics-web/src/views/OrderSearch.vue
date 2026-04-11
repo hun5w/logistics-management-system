@@ -25,8 +25,8 @@
         <el-descriptions title="📦 订单基本信息" :column="2" border class="info-table">
           <el-descriptions-item label="订单编号">{{ orderInfo.orderNo }}</el-descriptions-item>
           <el-descriptions-item label="当前状态">
-            <el-tag :type="statusMap[orderInfo.status].type">
-              {{ statusMap[orderInfo.status].label }}
+            <el-tag :type="statusMap[orderInfo.status]?.type || 'info'">
+              {{ statusMap[orderInfo.status]?.label || '未知状态' }}
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="发件人">{{ orderInfo.senderName }}</el-descriptions-item>
@@ -96,11 +96,11 @@ const handleSearch = async () => {
   hasSearched.value = true
   try {
     const res = await axios.get(`http://localhost:8080/api/orders/search?orderNo=${cleanNo}`)
-    if (res.data && res.data.id) {
-      orderInfo.value = res.data
+    if (res.data && res.data.code === 200 && res.data.data) {
+      orderInfo.value = res.data.data
     } else {
       orderInfo.value = {}
-      ElMessage.error('订单号不存在')
+      ElMessage.error(res.data?.msg || '订单号不存在')
     }
   } catch (e) {
     ElMessage.error('查询失败，请检查网络')

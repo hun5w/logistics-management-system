@@ -13,6 +13,10 @@
           class="side-menu"
           :unique-opened="true"
       >
+        <el-menu-item v-if="userRole === 'ADMIN'" index="/dashboard">
+          <span>总览看板</span>
+        </el-menu-item>
+
         <el-menu-item index="/search">
           <el-icon><Search /></el-icon>
           <span>物流轨迹查询</span>
@@ -38,11 +42,29 @@
           <span>末端派送签收</span>
         </el-menu-item>
 
+        <el-sub-menu v-if="userRole === 'ADMIN'" index="/admin-group">
+          <template #title>
+            <span>管理员账号中心</span>
+          </template>
+          <el-menu-item index="/admin/users-overview">账号总览</el-menu-item>
+          <el-menu-item index="/admin/users-create">创建内部账号</el-menu-item>
+          <el-menu-item index="/admin/users-role-status">角色与状态维护</el-menu-item>
+          <el-menu-item index="/admin/users-security">密码重置中心</el-menu-item>
+          <el-menu-item index="/admin/op-logs">管理员操作日志</el-menu-item>
+          <el-menu-item index="/admin/disabled-users">禁用账号管理</el-menu-item>
+          <el-menu-item index="/admin/role-change-stats">角色变更统计</el-menu-item>
+        </el-sub-menu>
+        
         <el-divider />
 
-        <el-menu-item @click="handleLogout" class="logout-btn">
+        <el-menu-item v-if="userRole" @click="handleLogout" class="logout-btn">
           <el-icon><SwitchButton /></el-icon>
           <span>退出登录 ({{ nickname || '未登录' }})</span>
+        </el-menu-item>
+
+        <el-menu-item v-else @click="goLogin" class="logout-btn">
+          <el-icon><SwitchButton /></el-icon>
+          <span>去登录</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -65,6 +87,7 @@ const route = useRoute()
 const router = useRouter()
 const userRole = ref('')
 const nickname = ref('')
+const publicPaths = ['/search']
 
 /**
  * 更新用户信息逻辑
@@ -103,7 +126,7 @@ watch(
       updateUserInfo()
 
       // 如果不是去登录页，且没有角色信息，强制回弹
-      if (newPath !== '/login' && !userRole.value) {
+      if (newPath !== '/login' && !publicPaths.includes(newPath) && !userRole.value) {
         ElMessage.warning('请先登录系统')
         router.push('/login')
       }
@@ -128,6 +151,10 @@ const handleLogout = () => {
     router.push('/login')
     ElMessage.success('已安全退出')
   }).catch(() => {})
+}
+
+const goLogin = () => {
+  router.push('/login')
 }
 </script>
 

@@ -39,6 +39,15 @@
         <el-button type="primary" @click="handleSubmit" :loading="loading" style="width: 100%; margin-top: 10px;">
           {{ isLogin ? '立即登录' : '提交规范注册' }}
         </el-button>
+
+        <el-button
+          text
+          type="primary"
+          style="width: 100%; margin-top: 8px;"
+          @click="goGuestSearch"
+        >
+          免登录查件
+        </el-button>
       </el-form>
     </el-card>
   </div>
@@ -65,6 +74,10 @@ const form = ref({
 // 切换标签页时重置部分数据
 const toggleTab = (status) => {
   isLogin.value = status
+}
+
+const goGuestSearch = () => {
+  router.push('/search')
 }
 
 const handleSubmit = async () => {
@@ -94,16 +107,12 @@ const handleSubmit = async () => {
         ElMessage.success('欢迎回来，' + res.data.data.nickname)
         localStorage.setItem('userInfo', JSON.stringify(res.data.data))
 
-        // 角色分流跳转
+        // 登录后分角色跳转，管理员优先进入用户管理
         const role = res.data.data.role
         if (role === 'ADMIN') {
-          router.push('/list') // 管理员去总表
-        } else if (role === 'WAREHOUSE') {
-          router.push('/warehouse')
-        } else if (role === 'COURIER') {
-          router.push('/courier')
+          router.push('/admin/users-overview')
         } else {
-          router.push('/search') // USER 去查询页
+          router.push('/search')
         }
       } else {
         // 注册成功处理
