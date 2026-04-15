@@ -43,15 +43,31 @@ const courierOrders = computed(() =>
     allOrders.value.filter(o => o.status === 2 || o.status === 3)
 )
 
+const getAuthHeaders = () => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+  return {
+    'User-Role': userInfo.role || '',
+    'User-Name': userInfo.username || ''
+  }
+}
+
 const fetchOrders = async () => {
   const res = await axios.get('http://localhost:8080/api/orders/all')
   allOrders.value = res.data
 }
 
 const handleAction = async (row, nextStatus) => {
-  await axios.put(`http://localhost:8080/api/orders/status?id=${row.id}&status=${nextStatus}`)
-  ElMessage.success(nextStatus === 3 ? '开始派送中...' : '订单已签收！')
-  fetchOrders()
+  try {
+    await axios.put(
+      `http://localhost:8080/api/orders/status?id=${row.id}&status=${nextStatus}`,
+      null,
+      { headers: getAuthHeaders() }
+    )
+    ElMessage.success(nextStatus === 3 ? '开始派送中...' : '订单已签收！')
+    fetchOrders()
+  } catch (e) {
+    ElMessage.error(e?.response?.data?.msg || '操作失败')
+  }
 }
 
 onMounted(fetchOrders)

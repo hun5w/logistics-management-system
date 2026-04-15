@@ -15,4 +15,7 @@ public interface TrackMapper {
 
     @Select("SELECT * FROM t_track WHERE order_id = #{orderId} ORDER BY create_time DESC")
     List<LogisticsTrack> findByOrderId(@Param("orderId") Long orderId);
+
+    @Delete("DELETE FROM t_track WHERE order_id = #{orderId}")
+    int deleteByOrderId(@Param("orderId") Long orderId);
 }

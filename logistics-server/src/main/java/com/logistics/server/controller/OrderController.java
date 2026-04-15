@@ -78,11 +78,35 @@ public class OrderController {
 
         Map<String, Object> res = new HashMap<>();
 
-        // 🚩 权限校验：只有管理员或快递员能操作签收(status=4)
-        if (Integer.valueOf(4).equals(status) && !"ADMIN".equals(role) && !"COURIER".equals(role)) {
-            res.put("code", 403);
-            res.put("msg", "权限不足：非派送人员无法操作签收");
+        Order currentOrder = orderMapper.findById(id);
+        if (currentOrder == null) {
+            res.put("code", 404);
+            res.put("msg", "订单不存在");
             return res;
+        }
+
+        if (status == null || status < 1 || status > 4) {
+            res.put("code", 400);
+            res.put("msg", "目标状态不合法");
+            return res;
+        }
+
+        // 🚩 权限校验：只有管理员或快递员能操作签收(status=4)
+        if (!"ADMIN".equals(role)) {
+            boolean allowed = false;
+            if ("WAREHOUSE".equals(role)) {
+                allowed = (currentOrder.getStatus() == 0 && status == 1)
+                        || (currentOrder.getStatus() == 1 && status == 2);
+            } else if ("COURIER".equals(role)) {
+                allowed = (currentOrder.getStatus() == 2 && status == 3)
+                        || (currentOrder.getStatus() == 3 && status == 4);
+            }
+
+            if (!allowed) {
+                res.put("code", 403);
+                res.put("msg", "权限不足或状态流转不合法");
+                return res;
+            }
         }
 
         // 1. 更新订单状态
@@ -115,6 +139,40 @@ public class OrderController {
     }
 
     /**
+     * 3.1 删除订单（管理员）
+     */
+    @DeleteMapping
+    @Transactional
+    public Map<String, Object> deleteOrder(@RequestParam Long id,
+                                           @RequestHeader(value = "User-Role", required = false) String role) {
+        Map<String, Object> res = new HashMap<>();
+
+        if (!"ADMIN".equals(role)) {
+            res.put("code", 403);
+            res.put("msg", "仅管理员可删除订单");
+            return res;
+        }
+
+        Order currentOrder = orderMapper.findById(id);
+        if (currentOrder == null) {
+            res.put("code", 404);
+            res.put("msg", "订单不存在");
+            return res;
+        }
+
+        trackMapper.deleteByOrderId(id);
+        int result = orderMapper.deleteById(id);
+        if (result > 0) {
+            res.put("code", 200);
+            res.put("msg", "订单删除成功");
+        } else {
+            res.put("code", 500);
+            res.put("msg", "订单删除失败");
+        }
+        return res;
+    }
+
+    /**
      * 4. 轨迹查询（公共接口）
      */
     @GetMapping("/search")
@@ -141,15 +199,38 @@ public class OrderController {
      */
     @PutMapping("/arrive")
     @Transactional
-    public Map<String, Object> orderArrive(@RequestParam Long id, @RequestParam String location) {
+    public Map<String, Object> orderArrive(@RequestParam Long id,
+                                           @RequestParam String location,
+                                           @RequestHeader(value = "User-Role", required = false) String role) {
         Map<String, Object> res = new HashMap<>();
+
+        if (!"ADMIN".equals(role) && !"WAREHOUSE".equals(role)) {
+            res.put("code", 403);
+            res.put("msg", "仅管理员或仓库员可执行入库操作");
+            return res;
+        }
+
+        Order currentOrder = orderMapper.findById(id);
+        if (currentOrder == null) {
+            res.put("code", 404);
+            res.put("msg", "订单不存在");
+            return res;
+        }
+
+        int update = orderMapper.updateStatus(id, 1);
+        if (update <= 0) {
+            res.put("code", 500);
+            res.put("msg", "入库时更新订单状态失败");
+            return res;
+        }
+
         LogisticsTrack track = new LogisticsTrack();
         track.setOrderId(id);
         track.setContent("快件已到达 【" + location + "】");
         trackMapper.insertTrack(track);
 
         res.put("code", 200);
-        res.put("msg", "入库记录成功");
+        res.put("msg", "入库记录成功，订单状态已更新为已揽件");
         return res;
     }
 
@@ -158,15 +239,38 @@ public class OrderController {
      */
     @PutMapping("/depart")
     @Transactional
-    public Map<String, Object> orderDepart(@RequestParam Long id, @RequestParam String nextStop) {
+    public Map<String, Object> orderDepart(@RequestParam Long id,
+                                           @RequestParam String nextStop,
+                                           @RequestHeader(value = "User-Role", required = false) String role) {
         Map<String, Object> res = new HashMap<>();
+
+        if (!"ADMIN".equals(role) && !"WAREHOUSE".equals(role)) {
+            res.put("code", 403);
+            res.put("msg", "仅管理员或仓库员可执行出库操作");
+            return res;
+        }
+
+        Order currentOrder = orderMapper.findById(id);
+        if (currentOrder == null) {
+            res.put("code", 404);
+            res.put("msg", "订单不存在");
+            return res;
+        }
+
+        int update = orderMapper.updateStatus(id, 2);
+        if (update <= 0) {
+            res.put("code", 500);
+            res.put("msg", "出库时更新订单状态失败");
+            return res;
+        }
+
         LogisticsTrack track = new LogisticsTrack();
         track.setOrderId(id);
         track.setContent("快件已从上一站发出，正发往 【" + nextStop + "】");
         trackMapper.insertTrack(track);
 
         res.put("code", 200);
-        res.put("msg", "出库记录成功");
+        res.put("msg", "出库记录成功，订单状态已更新为运输中");
         return res;
     }
 }

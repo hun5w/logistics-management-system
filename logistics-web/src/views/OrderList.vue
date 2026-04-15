@@ -45,6 +45,13 @@
                 @click="updateStatus(scope.row, 4)">确认签收</el-button>
 
             <span v-if="scope.row.status === 4" style="color: #909399; font-size: 12px;">流程已结束</span>
+
+            <el-button
+                size="small"
+                type="danger"
+                plain
+                style="margin-left: 8px"
+                @click="deleteOrder(scope.row)">删除订单</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -55,10 +62,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const orders = ref([])
 const loading = ref(false)
+
+const getAuthHeaders = () => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+  return {
+    'User-Role': userInfo.role || '',
+    'User-Name': userInfo.username || ''
+  }
+}
 
 // 状态字典配置
 const getStatusInfo = (status) => {
@@ -87,11 +102,34 @@ const fetchOrders = async () => {
 const updateStatus = async (row, nextStatus) => {
   try {
     // 调起后端现有的更新接口
-    await axios.put(`http://localhost:8080/api/orders/status?id=${row.id}&status=${nextStatus}`)
+    await axios.put(
+      `http://localhost:8080/api/orders/status?id=${row.id}&status=${nextStatus}`,
+      null,
+      { headers: getAuthHeaders() }
+    )
     ElMessage.success('物流状态已更新')
     fetchOrders() // 刷新列表，确保页面不消失
   } catch (e) {
-    ElMessage.error('更新失败')
+    ElMessage.error(e?.response?.data?.msg || '更新失败')
+  }
+}
+
+const deleteOrder = async (row) => {
+  try {
+    await ElMessageBox.confirm(`确认删除订单 ${row.orderNo} 吗？`, '删除确认', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await axios.delete(`http://localhost:8080/api/orders?id=${row.id}`, {
+      headers: getAuthHeaders()
+    })
+    ElMessage.success('订单已删除')
+    fetchOrders()
+  } catch (e) {
+    if (e !== 'cancel') {
+      ElMessage.error(e?.response?.data?.msg || '删除失败')
+    }
   }
 }
 

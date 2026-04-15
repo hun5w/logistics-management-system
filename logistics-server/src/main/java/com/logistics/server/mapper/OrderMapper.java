@@ -20,9 +20,17 @@ public interface OrderMapper {
     @Select("SELECT * FROM t_order ORDER BY create_time DESC")
     List<Order> findAll();
 
+    // 2.1. 根据ID查询订单
+    @Select("SELECT * FROM t_order WHERE id = #{id}")
+    Order findById(@Param("id") Long id);
+
     // 3. 更新订单状态 (用于 揽件 -> 运输 -> 签收 的状态流转)
     @Update("UPDATE t_order SET status = #{status} WHERE id = #{id}")
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    // 3.1. 删除订单
+    @Delete("DELETE FROM t_order WHERE id = #{id}")
+    int deleteById(@Param("id") Long id);
 
     // 4. 根据订单号查询 (预留给后期的轨迹查询功能)
     @Select("SELECT * FROM t_order WHERE order_no = #{orderNo}")

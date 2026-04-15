@@ -10,13 +10,27 @@
       <el-table :data="transportingOrders" stripe style="width: 100%">
         <el-table-column prop="orderNo" label="单号" width="200" />
         <el-table-column prop="receiverAddress" label="最终目的地" />
+        <el-table-column label="当前状态" width="120">
+          <template #default="scope">
+            <el-tag type="info">{{ getStatusLabel(scope.row.status) }}</el-tag>
+          </template>
+        </el-table-column>
 
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="small" type="success" @click="doArrive(scope.row)">
+            <el-button
+                v-if="scope.row.status === 2"
+                size="small"
+                type="success"
+                @click="doArrive(scope.row)">
               扫描入库
             </el-button>
-            <el-button size="small" type="warning" @click="doDepart(scope.row)">
+
+            <el-button
+                v-if="scope.row.status === 1"
+                size="small"
+                type="warning"
+                @click="doDepart(scope.row)">
               装车出库
             </el-button>
           </template>
@@ -32,8 +46,24 @@ import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const orders = ref([])
-// 过滤逻辑：只展示 status 为 2 的订单
-const transportingOrders = computed(() => orders.value.filter(o => o.status === 2))
+// 仓库可处理订单：已揽件(1) 或 运输中(2)
+const transportingOrders = computed(() => orders.value.filter(o => o.status === 1 || o.status === 2))
+
+const getStatusLabel = (status) => {
+  const map = {
+    1: '已揽件',
+    2: '运输中'
+  }
+  return map[status] || '其他状态'
+}
+
+const getAuthHeaders = () => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+  return {
+    'User-Role': userInfo.role || '',
+    'User-Name': userInfo.username || ''
+  }
+}
 
 const fetchOrders = async () => {
   const res = await axios.get('http://localhost:8080/api/orders/all')
@@ -41,9 +71,17 @@ const fetchOrders = async () => {
 }
 
 const doArrive = async (row) => {
-  await axios.put(`http://localhost:8080/api/orders/arrive?id=${row.id}&location=上海分拨中心`)
-  ElMessage.success('入库成功')
-  fetchOrders()
+  try {
+    await axios.put(
+      `http://localhost:8080/api/orders/arrive?id=${row.id}&location=上海分拨中心`,
+      null,
+      { headers: getAuthHeaders() }
+    )
+    ElMessage.success('入库成功')
+    fetchOrders()
+  } catch (e) {
+    ElMessage.error(e?.response?.data?.msg || '入库失败')
+  }
 }
 
 const doDepart = async (row) => {
@@ -52,9 +90,17 @@ const doDepart = async (row) => {
     cancelButtonText: '取消',
     inputPlaceholder: '例如：杭州分拨中心'
   }).then(async ({ value }) => {
-    await axios.put(`http://localhost:8080/api/orders/depart?id=${row.id}&nextStop=${value}`)
-    ElMessage.success('已发货至：' + value)
-    fetchOrders()
+    try {
+      await axios.put(
+        `http://localhost:8080/api/orders/depart?id=${row.id}&nextStop=${value}`,
+        null,
+        { headers: getAuthHeaders() }
+      )
+      ElMessage.success('已发货至：' + value)
+      fetchOrders()
+    } catch (e) {
+      ElMessage.error(e?.response?.data?.msg || '出库失败')
+    }
   })
 }
 
