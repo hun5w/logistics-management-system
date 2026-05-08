@@ -3,7 +3,7 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>🏭 仓储中转流水线 (模拟站点：上海分拨中心)</span>
+          <span>🏭 仓储中转流水线 (模拟站点)</span>
         </div>
       </template>
 
@@ -19,15 +19,15 @@
         <el-table-column label="操作">
           <template #default="scope">
             <el-button
-                v-if="scope.row.status === 2"
+                v-if="scope.row.status === 0"
                 size="small"
                 type="success"
                 @click="doArrive(scope.row)">
-              扫描入库
+              揽件入库
             </el-button>
 
             <el-button
-                v-if="scope.row.status === 1"
+                v-else-if="scope.row.status === 1"
                 size="small"
                 type="warning"
                 @click="doDepart(scope.row)">
@@ -46,11 +46,12 @@ import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const orders = ref([])
-// 仓库可处理订单：已揽件(1) 或 运输中(2)
-const transportingOrders = computed(() => orders.value.filter(o => o.status === 1 || o.status === 2))
+// 仓库可处理订单：待揽件(0)、已揽件(1) 或 运输中(2)
+const transportingOrders = computed(() => orders.value.filter(o => o.status === 0 || o.status === 1 || o.status === 2))
 
 const getStatusLabel = (status) => {
   const map = {
+    0: '待揽件',
     1: '已揽件',
     2: '运输中'
   }
