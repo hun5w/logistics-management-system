@@ -202,16 +202,18 @@ const resetSearch = () => {
   line-height: 1.1;
   color: var(--color-foreground);
   margin-bottom: 1rem;
+}
 
-  @media (max-width: 640px) {
+.hero-title .gradient-text {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (max-width: 640px) {
+  .hero-title {
     font-size: 2.5rem;
-  }
-
-  .gradient-text {
-    background: linear-gradient(to right, var(--color-accent), var(--color-accent-secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 }
 
@@ -220,8 +222,10 @@ const resetSearch = () => {
   color: var(--color-muted-foreground);
   line-height: 1.5;
   margin: 0;
+}
 
-  @media (max-width: 640px) {
+@media (max-width: 640px) {
+  .hero-subtitle {
     font-size: 1rem;
   }
 }
@@ -233,8 +237,10 @@ const resetSearch = () => {
 
 .search-card {
   padding: var(--spacing-xl);
+}
 
-  @media (max-width: 640px) {
+@media (max-width: 640px) {
+  .search-card {
     padding: var(--spacing-lg);
   }
 }
@@ -246,22 +252,24 @@ const resetSearch = () => {
   gap: 1rem;
   margin-bottom: 2rem;
   align-items: flex-end;
+}
 
-  @media (max-width: 640px) {
+@media (max-width: 640px) {
+  .search-box-wrapper {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
+}
 
-  :deep(.el-input) {
-    --el-input-height: 3rem;
-    --el-input-border-color: var(--color-border);
-    --el-input-focus-border-color: var(--color-accent);
-    border-radius: var(--radius-lg) !important;
-  }
+.search-box-wrapper :deep(.el-input) {
+  --el-input-height: 3rem;
+  --el-input-border-color: var(--color-border);
+  --el-input-focus-border-color: var(--color-accent);
+  border-radius: var(--radius-lg) !important;
+}
 
-  :deep(.el-input.is-focus .el-input__wrapper) {
-    box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.1) !important;
-  }
+.search-box-wrapper :deep(.el-input.is-focus .el-input__wrapper) {
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.1) !important;
 }
 
 .search-icon {
@@ -288,8 +296,10 @@ const resetSearch = () => {
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
   gap: var(--spacing-md);
+}
 
-  @media (max-width: 640px) {
+@media (max-width: 640px) {
+  .info-header {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -314,8 +324,10 @@ const resetSearch = () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
+}
 
-  @media (max-width: 640px) {
+@media (max-width: 640px) {
+  .info-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -358,17 +370,20 @@ const resetSearch = () => {
   flex-direction: column;
   gap: 0.5rem;
   position: relative;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
 
-  /* 竖线连接 */
-  &::before {
-    content: '';
-    position: absolute;
-    left: 16px;
-    top: 32px;
-    bottom: 0;
-    width: 2px;
-    background: var(--color-border);
-  }
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
 }
 
 .timeline-item {
@@ -469,26 +484,26 @@ const resetSearch = () => {
   background: rgba(0, 82, 255, 0.03);
   border-left: 4px solid var(--color-accent);
   border-radius: var(--radius-lg);
+}
 
-  p {
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
-    color: var(--color-muted-foreground);
+.hint-box p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--color-muted-foreground);
+}
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+.hint-box p:last-child {
+  margin-bottom: 0;
+}
 
-    strong {
-      color: var(--color-foreground);
-    }
+.hint-box strong {
+  color: var(--color-foreground);
+}
 
-    a {
-      color: var(--color-accent);
-      font-weight: 600;
-      text-decoration: underline;
-    }
-  }
+.hint-box a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 /* ============ 动画 ============ */
