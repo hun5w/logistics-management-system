@@ -195,7 +195,35 @@ public class OrderController {
     }
 
     /**
-     * 5. 仓库入库（仅限管理员和仓库员）
+     * 5. 当前登录用户订单列表
+     */
+    @GetMapping("/mine")
+    public Map<String, Object> getMyOrders(
+            @RequestHeader(value = "User-Role", required = false) String role,
+            @RequestHeader(value = "User-Name", required = false) String username,
+            @RequestHeader(value = "User-Phone", required = false) String phone) {
+        Map<String, Object> res = new HashMap<>();
+
+        if (!"USER".equals(role)) {
+            res.put("code", 403);
+            res.put("msg", "仅普通用户可查看个人订单");
+            return res;
+        }
+
+        if (username == null || username.trim().isEmpty() || phone == null || phone.trim().isEmpty()) {
+            res.put("code", 400);
+            res.put("msg", "缺少必要用户信息，无法获取个人订单");
+            return res;
+        }
+
+        List<Order> orders = orderMapper.findBySenderNameAndPhone(username.trim(), phone.trim());
+        res.put("code", 200);
+        res.put("data", orders);
+        return res;
+    }
+
+    /**
+     * 6. 仓库入库（仅限管理员和仓库员）
      */
     @PutMapping("/arrive")
     @Transactional

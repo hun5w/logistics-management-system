@@ -26,6 +26,10 @@
           <el-icon><Plus /></el-icon>
           <span>快速下单</span>
         </el-menu-item>
+        <el-menu-item v-if="userRole === 'USER'" index="/profile">
+          <el-icon><User /></el-icon>
+          <span>个人中心</span>
+        </el-menu-item>
 
         <el-menu-item v-if="userRole === 'ADMIN'" index="/list">
           <el-icon><Memo /></el-icon>
@@ -80,7 +84,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Search, Plus, Memo, Box, Bicycle, SwitchButton } from '@element-plus/icons-vue'
+import { Search, Plus, Memo, Box, Bicycle, User, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 const route = useRoute()

@@ -6,6 +6,7 @@ import Dashboard from '../views/Dashboard.vue'
 import OrderCreate from '../views/OrderCreate.vue'
 import OrderList from '../views/OrderList.vue'
 import OrderSearch from '../views/OrderSearch.vue'
+import UserProfile from '../views/UserProfile.vue'
 import UserManage from '../views/UserManage.vue'
 import AdminUserOverview from '../views/AdminUserOverview.vue'
 import AdminUserCreate from '../views/AdminUserCreate.vue'
@@ -40,6 +41,12 @@ const routes = [
                 name: 'OrderCreate',
                 component: OrderCreate,
                 meta: { roles: ['ADMIN', 'USER'] } // 🚩 允许普通用户下单
+            },
+            {
+                path: 'profile',
+                name: 'UserProfile',
+                component: UserProfile,
+                meta: { roles: ['USER'] }
             },
             {
                 path: 'list',

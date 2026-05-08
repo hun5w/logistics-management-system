@@ -35,4 +35,8 @@ public interface OrderMapper {
     // 4. 根据订单号查询 (预留给后期的轨迹查询功能)
     @Select("SELECT * FROM t_order WHERE order_no = #{orderNo}")
     Order findByOrderNo(@Param("orderNo") String orderNo);
+
+    // 4.1. 查询当前用户发件订单，严格匹配用户名与手机号，防止横向越权
+    @Select("SELECT * FROM t_order WHERE sender_name = #{name} AND sender_phone = #{phone} ORDER BY create_time DESC")
+    List<Order> findBySenderNameAndPhone(@Param("name") String name, @Param("phone") String phone);
 }
